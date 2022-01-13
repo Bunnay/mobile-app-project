@@ -54,7 +54,7 @@ class _TaskState extends State<Task> {
 Widget get allCategories {
   return Container(
       margin: const EdgeInsets.all(10),
-      height: 45,
+      height: 47,
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
@@ -124,6 +124,8 @@ Widget get search {
             TextField(
               decoration: InputDecoration(
                 filled: true,
+                contentPadding:
+                    const EdgeInsets.fromLTRB(20.0, 10.0, 100.0, 10.0),
                 border: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(15)),
                     borderSide: BorderSide(color: Colors.white, width: 0)),
@@ -336,7 +338,6 @@ _showBottomModal(context) {
                             color: Colors.lightBlue,
                           ),
                         )),
-
                   ],
                 ),
               ],

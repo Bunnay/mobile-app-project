@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/home.dart';
-import 'package:my_app/notes/index.dart';
-import 'package:my_app/profile/profile.dart';
-import 'package:my_app/tasks/index.dart';
+import 'package:my_app/screen/home.dart';
+import 'package:my_app/screen/notes/index.dart';
+import 'package:my_app/screen/profile/profile.dart';
+import 'package:my_app/screen/tasks/index.dart';
 
 void main() {
   runApp(const App());
@@ -31,7 +31,7 @@ class Main extends StatefulWidget {
 
 class _MainState extends State<Main> {
   bool value = false;
-  int _selectedIndex = 3;
+  int _selectedIndex = 1;
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -40,7 +40,7 @@ class _MainState extends State<Main> {
 
   final List<Widget> _page = <Widget>[
     const Home(),
-    const Note(),
+    const NoteScreen(),
     const Task(),
     const Profile(),
   ];
