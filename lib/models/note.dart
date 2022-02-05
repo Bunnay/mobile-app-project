@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:my_app/database/db.dart';
 
 class Note {
   int? id;
@@ -39,29 +37,3 @@ class NoteTable {
   static const String text = 'text';
 }
 
-class NoteProvider extends DB {
-  static final NoteProvider instance = NoteProvider._init();
-  NoteProvider._init();
-
-  Future insert(Note note) async {
-    note.id = await (await db).insert(NoteTable.name, note.toMap());
-    return note;
-  }
-
-  Future getAllNotes() async {
-    final _db = await db;
-    List<Map<String, Object?>> result = await _db.query(NoteTable.name);
-    return result.map((json) => Note.fromMap(json)).toList();
-  }
-
-  Future<int> delete(int id) async {
-    return await (await db).delete(NoteTable.name, where: 'id = ?', whereArgs: [id]);
-  }
-
-  Future<int> update(Note note) async {
-    return await (await db).update(NoteTable.name, note.toMap(),
-      where: 'id = ?', whereArgs: [note.id]);
-  }
-
-  Future close() async => (await db).close();
-}

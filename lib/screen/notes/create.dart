@@ -1,27 +1,50 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/database/db.dart';
+import 'package:my_app/components/delete_dialog.dart';
+import 'package:my_app/components/textfield.dart';
 import 'package:my_app/models/note.dart';
+import 'package:my_app/provider/note_provider.dart';
 
-void main() {
-  runApp(const CreateNote(title: '',text: ''));
-}
-
+// ignore: must_be_immutable
 class CreateNote extends StatefulWidget {
-  final String title;
-  final String text;
-  const CreateNote({Key? key, required this.title, required this.text})
-      : super(key: key);
+  Note note;
+  String type;
+
+  CreateNote({Key? key, note, required this.type})
+      : note = note ?? Note(title: '', text: ''),
+        super(key: key);
 
   @override
   _CreateNoteState createState() => _CreateNoteState();
 }
 
 class _CreateNoteState extends State<CreateNote> {
-  List<Note> notes = [];
+  final _titleController = TextEditingController();
+  final _textController = TextEditingController();
+  // ignore: prefer_typing_uninitialized_variables
+  var noteId;
+  // ignore: prefer_typing_uninitialized_variables
+  var myType;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController.text = widget.note.title;
+    _textController.text = widget.note.text;
+    noteId = widget.note.id;
+    myType = widget.type;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          actions: [
+            Padding(
+                padding: const EdgeInsets.only(right: 8), child: updateButton),
+            Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: (myType == 'edit') ? deleteButton : null),
+          ],
           title: const Text('Notes',
               style: TextStyle(
                 color: Colors.lightBlue,
@@ -34,119 +57,121 @@ class _CreateNoteState extends State<CreateNote> {
           backgroundColor: Colors.white,
         ),
         body: ListView(children: [
-          titleField,
-          textField,
-          action,
+          textField(_titleController, 'Enter title...', 1),
+          textField(_textController, 'Enter text...', 15),
         ]));
   }
 
-  Widget get titleField {
-    // var _titleController = TextEditingController();
-    return SizedBox(
-        child: Card(
-            elevation: 0,
-            margin: const EdgeInsets.only(left: 15, right: 15, top: 10),
-            child: Column(children: [
-              TextFormField(
-                initialValue: widget.title,
-                // controller: _titleController,
-                keyboardType: TextInputType.text,
-                decoration: InputDecoration(
-                  // suffixIcon: IconButton(
-                  //   onPressed: _titleController.clear,
-                  //   icon: const Icon(Icons.clear),
-                  // ),
-                  contentPadding:
-                      const EdgeInsets.fromLTRB(20.0, 10.0, 100.0, 10.0),
-                  filled: true,
-                  border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(15)),
-                      borderSide: BorderSide(color: Colors.white, width: 0)),
-                  fillColor: Colors.grey[200],
-                  hintText: 'Enter title...',
-                  enabledBorder: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(15)),
-                      borderSide: BorderSide(color: Colors.white, width: 0)),
-                ),
-              ),
-            ])));
+  Future<void> editAndCreateNote() async {
+    Note note = Note(
+      title: _titleController.text,
+      text: _textController.text,
+      id: noteId,
+    );
+    bool? success = false;
+    // ignore: unused_local_variable
+    bool? error = false;
+    String? message;
+    try {
+      if (myType == 'edit') {
+        NoteProvider.instance.update(note);
+        message = 'Updated successfully';
+        success = true;
+      } else {
+        if (_titleController.text == '' && _textController.text == '') {
+          message = "Empty Note Discarded";
+          success = false;
+        } else {
+          NoteProvider.instance.insert(note);
+          message = 'Created successfully';
+          success = true;
+        }
+      }
+    } catch (e) {
+      if (myType == 'edit') {
+        message = 'Error editing';
+      } else {
+        message = 'Error creating';
+      }
+      error = true;
+    } finally {
+      final snackBar = SnackBar(
+        dismissDirection: DismissDirection.up,
+        content: Text(
+          message!,
+          style: const TextStyle(fontSize: 14),
+        ),
+        // ignore: unrelated_type_equality_checks
+        backgroundColor: success == true ? Colors.lightBlue : Colors.redAccent,
+      );
+      Navigator.pop(context, note);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
   }
 
-  Widget get textField {
-  // var _controller = TextEditingController();
-  return SizedBox(
-      child: Card(
-          elevation: 0,
-          margin: const EdgeInsets.only(left: 15, right: 15, top: 10),
-          child: Column(children: [
-            TextFormField(
-              // controller: _controller,
-              minLines: 10,
-              initialValue: widget.text,
-              keyboardType: TextInputType.text,
-              maxLines: null,
-              decoration: InputDecoration(
-                // suffixIcon: IconButton(
-                //   onPressed: _controller.clear,
-                //   icon: const Icon(Icons.clear),
-                //   padding: const EdgeInsets.only(top: 0, left: 0)
-                // ),
-                contentPadding:
-                    const EdgeInsets.fromLTRB(20.0, 10.0, 100.0, 10.0),
-                filled: true,
-                border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                    borderSide: BorderSide(color: Colors.white, width: 0)),
-                fillColor: Colors.grey[200],
-                hintText: 'Enter text...',
-                enabledBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                    borderSide: BorderSide(color: Colors.white, width: 0)),
-              ),
-            ),
-          ])));
+  Future<void> deleteNote() async {
+    bool success = false;
+    String? message;
+    try {
+      NoteProvider.instance.delete(noteId);
+      message = 'Deleted successfully';
+      success = true;
+    } catch (e) {
+      message = 'Error deleted';
+      success = false;
+    } finally {
+      final snackBar = SnackBar(
+        content: Text(
+          message!,
+          style: const TextStyle(fontSize: 14),
+        ),
+        backgroundColor: success ? Colors.lightBlue : Colors.redAccent,
+      );
+
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
+  Widget get updateButton {
+    return Center(
+        child: ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.all(7),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        minimumSize: const Size.square(10),
+        elevation: 0,
+        primary: Colors.blue[50],
+      ),
+      onPressed: editAndCreateNote,
+      child: const Icon(
+        Icons.check,
+        size: 30,
+        color: Colors.blueAccent,
+      ),
+    ));
+  }
+
+  Widget get deleteButton {
+    return Center(
+        child: ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.all(7),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        minimumSize: const Size.square(10),
+        elevation: 0,
+        primary: Colors.red[50],
+      ),
+      onPressed: () => openDialog(context, _titleController.text, deleteNote),
+      child: const Icon(
+        Icons.delete,
+        size: 30,
+        color: Colors.redAccent,
+      ),
+    ));
+  }
 }
-}
-
-
-
-Widget button(Color color, IconData icon, clickEvent) {
-  final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
-    onPrimary: Colors.white,
-    primary: color,
-    padding: const EdgeInsets.all(10),
-    shape: const CircleBorder(),
-  );
-
-  return Container(
-    margin: const EdgeInsets.only(top: 20),
-    child: Center(
-        child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ElevatedButton(
-          style: raisedButtonStyle,
-          onPressed: clickEvent,
-          child: Icon(
-            icon,
-            size: 30,
-            color: Colors.white,
-          ),
-        )
-      ],
-    )),
-  );
-}
-
-Widget get action {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      button(Colors.red, Icons.delete, delete),
-      button(Colors.blueAccent, Icons.check, update)
-    ],
-  );
-}
-
-delete() {}
-update() {}

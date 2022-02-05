@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/painting/edge_insets.dart';
 import 'package:badges/badges.dart';
 
-void main() {
-  runApp(const Profile());
-}
-
-class Profile extends StatefulWidget {
-  const Profile({Key? key}) : super(key: key);
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({Key? key}) : super(key: key);
 
   @override
   _ProfileState createState() => _ProfileState();
 }
 
-class _ProfileState extends State<Profile> {
+class _ProfileState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

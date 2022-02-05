@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/screen/home.dart';
 import 'package:my_app/screen/notes/index.dart';
-import 'package:my_app/screen/profile/profile.dart';
+import 'package:my_app/screen/profile/index.dart';
 import 'package:my_app/screen/tasks/index.dart';
 
 void main() {
@@ -31,7 +31,7 @@ class Main extends StatefulWidget {
 
 class _MainState extends State<Main> {
   bool value = false;
-  int _selectedIndex = 1;
+  int _selectedIndex = 2;
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -39,10 +39,10 @@ class _MainState extends State<Main> {
   }
 
   final List<Widget> _page = <Widget>[
-    const Home(),
+    const HomeScreen(),
     const NoteScreen(),
-    const Task(),
-    const Profile(),
+    const TaskScreen(),
+    const ProfileScreen(),
   ];
 
   @override
@@ -50,22 +50,25 @@ class _MainState extends State<Main> {
     return Scaffold(
       body: Center(child: _page.elementAt(_selectedIndex)),
       bottomNavigationBar: BottomNavigationBar(
-        elevation: 3,
+        elevation: 0,
+        type: BottomNavigationBarType.fixed,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home, size: 30),
+            icon: Icon(Icons.home, size: 25),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.border_color_rounded, size: 30),
+            icon: Icon(Icons.border_color_rounded, size: 25),
             label: 'Note',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.article_rounded, size: 30),
+            icon: Icon(Icons.article_rounded, size: 25),
             label: 'Task',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person, size: 30),
+            icon: Icon(Icons.person, size: 25),
             label: 'Profile',
           ),
         ],

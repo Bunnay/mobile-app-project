@@ -1,80 +1,223 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/painting/edge_insets.dart';
-import 'package:my_app/tasks/create.dart';
+import 'package:my_app/components/search.dart';
+import 'package:my_app/models/category.dart';
+import 'package:my_app/models/task.dart';
+import 'package:my_app/provider/category_provider.dart';
+import 'package:my_app/provider/task_provider.dart';
+import 'package:my_app/screen/tasks/create_category.dart';
+import 'package:my_app/screen/tasks/create_task.dart';
 
-void main() {
-  runApp(const Task());
-}
-
-class Task extends StatefulWidget {
-  const Task({Key? key}) : super(key: key);
+class TaskScreen extends StatefulWidget {
+  const TaskScreen({Key? key}) : super(key: key);
   @override
   _TaskState createState() => _TaskState();
 }
 
-class _TaskState extends State<Task> {
+class _TaskState extends State<TaskScreen> {
+  List<Task> tasks = [];
+  List<Task> completeTasks = [];
+  List<Category> categories = [];
+  // ignore: non_constant_identifier_names
+  var category_id;
+  var category_states = [];
+  var changeActive = true;
+  final _searchController = TextEditingController();
+  final _titleController = TextEditingController();
+  final _categoryNameController = TextEditingController();
+  final Future<String> _delay = Future<String>.delayed(
+    const Duration(seconds: 1),
+    () => 'loading...',
+  );
+
+  @override
+  initState() {
+    super.initState();
+    getTasks();
+    getCategories();
+    getMyCompleteTasks();
+    getTasksByCategory(category_id);
+    getCompleteTasksByCategory(category_id);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tasks',
-            style: TextStyle(
-              color: Colors.lightBlue,
-              fontWeight: FontWeight.bold,
-              fontSize: 25,
-            )),
-        elevation: 0,
-        backgroundColor: Colors.white,
-      ),
-      body: Column(children: [
-        Container(
-          child: search,
-          margin: const EdgeInsets.only(bottom: 5),
-        ),
-        allCategories,
-        Expanded(
-          child: allTasks,
-        ),
-      ]),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showBottomModal(context);
-        },
-        tooltip: 'Create Task',
-        backgroundColor: Colors.lightBlue,
-        child: const Icon(
-          Icons.article_rounded,
-          color: Colors.white,
-        ),
-      ),
-    );
+    return FutureBuilder<String>(
+        future: _delay,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text('Tasks',
+                    style: TextStyle(
+                      color: Colors.lightBlue,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 25,
+                    )),
+                elevation: 0,
+                backgroundColor: Colors.white,
+              ),
+              body: Column(children: [
+                Container(
+                  child: search(_searchController, taskSearch),
+                  margin: const EdgeInsets.only(bottom: 5),
+                ),
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 38,
+                      padding: const EdgeInsets.all(0),
+                      margin: const EdgeInsets.only(left: 15),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          primary:
+                              changeActive ? Colors.lightBlue : Colors.blue[50],
+                          elevation: 0,
+                          shadowColor: Colors.grey[50],
+                          onPrimary: Colors.blueAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: const EdgeInsets.all(0),
+                        ),
+                        child: Text('All',
+                            style: TextStyle(
+                                color: changeActive
+                                    ? Colors.white
+                                    : Colors.lightBlue,
+                                fontWeight: FontWeight.bold)),
+                        onPressed: () {
+                          var _states = category_states;
+                          for (var i = 0; i < _states.length; i++) {
+                            _states[i] = false;
+                          }
+                          setState(() {
+                            category_states = _states;
+                            changeActive = true;
+                          });
+                          getTasks();
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        child: allCategories,
+                      ),
+                    ),
+                    Container(
+                      width: 40,
+                      padding: const EdgeInsets.all(0),
+                      margin: const EdgeInsets.only(right: 15),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.blue[50],
+                          elevation: 0,
+                          onPrimary: Colors.blueAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          shadowColor: Colors.grey[50],
+                          padding: const EdgeInsets.all(0),
+                        ),
+                        child: const Icon(Icons.add,
+                            size: 20, color: Colors.lightBlue),
+                        onPressed: () => openDialog(
+                            context, _categoryNameController, createCategory),
+                      ),
+                    )
+                  ],
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: allTasks,
+                      ),
+                    ],
+                  ),
+                ),
+              ]),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () {
+                  showBottomModal(context, _titleController, createTask,
+                      (value) => {category_id = value});
+                },
+                tooltip: 'Create Task',
+                backgroundColor: Colors.lightBlue,
+                child: const Icon(
+                  Icons.article_rounded,
+                  color: Colors.white,
+                ),
+              ),
+            );
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          return const CircularProgressIndicator();
+        });
   }
-}
 
-Widget get allCategories {
-  return Container(
+  Future<void> getTasks() async {
+    List<Task> _tasks = await TaskProvider.instance.getAllTasks();
+    setState(() {
+      tasks = _tasks;
+    });
+  }
+
+  Future<void> getMyCompleteTasks() async {
+    List<Task> _completeTasks = await TaskProvider.instance.getCompleteTasks();
+    setState(() {
+      completeTasks = _completeTasks;
+    });
+  }
+
+  Future<void> getCategories() async {
+    List<Category> _categories =
+        await CategoryProvider.instance.getAllCategories();
+    setState(() {
+      categories = _categories;
+      category_states = List.generate(_categories.length, (index) => false);
+    });
+  }
+
+  // ignore: non_constant_identifier_names
+  Future<void> getTasksByCategory(category_id) async {
+    List<Task> _tasks =
+        await TaskProvider.instance.getTasksByCategoryId(category_id);
+    setState(() {
+      tasks = _tasks;
+    });
+  }
+
+  Future<void> getCompleteTasksByCategory(category_id) async {
+    List<Task> _completeTasks =
+        await TaskProvider.instance.getCompleteTasksByCategoryId(category_id);
+    setState(() {
+      completeTasks = _completeTasks;
+    });
+  }
+
+  Widget get allCategories {
+    return Container(
       margin: const EdgeInsets.all(10),
       height: 47,
       child: ListView(
         scrollDirection: Axis.horizontal,
-        children: [
-          categories('All', active: true),
-          categories('Study'),
-          categories('Work'),
-          categories('Personal'),
-          categories('Birthday'),
-          categories('Wishlist'),
-        ],
-      ));
-}
+        children: categories.asMap().entries.map((e) {
+          return displayCategories(e.value, e.key);
+        }).toList(),
+      ),
+    );
+  }
 
-Widget categories(String text, {bool active = false}) {
-  return Container(
+  Widget displayCategories(Category category, int index) {
+    return Container(
       margin: const EdgeInsets.all(4),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.all(10),
-          primary: active ? Colors.lightBlue : Colors.lightBlue[50],
+          primary: category_states[index] ? Colors.lightBlue : Colors.blue[50],
           onPrimary: Colors.blueAccent,
           shadowColor: Colors.grey[50],
           elevation: 0,
@@ -82,267 +225,360 @@ Widget categories(String text, {bool active = false}) {
             borderRadius: BorderRadius.circular(20),
           ),
         ),
-        onPressed: () {},
-        child: Text(text,
+        onPressed: () {
+          getTasksByCategory(category.id);
+          getCompleteTasksByCategory(category.id);
+          var _states = category_states;
+          for (var i = 0; i < _states.length; i++) {
+            _states[i] = i == index;
+          }
+          setState(() {
+            category_states = _states;
+            changeActive = false;
+          });
+        },
+        onLongPress: () {
+          openDialogDeleteCategory(category.id);
+        },
+        child: Text(category.name,
             style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: active ? Colors.white : Colors.lightBlue)),
-      ));
-}
-
-class Boolean {}
-
-Widget get allTasks {
-  return ListView(
-    children: [
-      Container(
-        margin: const EdgeInsets.only(left: 15, top: 15, bottom: 15),
-        child: const Text('Today',
-            style: TextStyle(
-              color: Colors.lightBlue,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-            )),
+                color:
+                    category_states[index] ? Colors.white : Colors.lightBlue)),
       ),
-      taskScreenBody('Homework ENGL 200'),
-      taskScreenBody('Database Assignment'),
-      taskScreenBody('Security Exam at 22'),
-      taskScreenBody('Quiz Math CS311'),
-      taskScreenBody('Project meeting at 9 today'),
-      taskScreenBody('Library Management'),
-    ],
-  );
-}
+    );
+  }
 
-Widget get search {
-  return SizedBox(
-      child: Card(
-          elevation: 0,
-          margin: const EdgeInsets.only(left: 15, right: 15, top: 10),
-          child: Column(children: [
-            TextField(
-              decoration: InputDecoration(
-                filled: true,
-                contentPadding:
-                    const EdgeInsets.fromLTRB(20.0, 10.0, 100.0, 10.0),
-                border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                    borderSide: BorderSide(color: Colors.white, width: 0)),
-                prefixIcon: const Icon(Icons.search),
-                fillColor: Colors.grey[200],
-                hintText: 'Search tasks',
-                enabledBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                    borderSide: BorderSide(color: Colors.white, width: 0)),
-              ),
+  Widget get allTasks {
+    if (tasks.isEmpty && completeTasks.isEmpty) {
+      return Image.asset(
+        'lib/images/no-data.jpg',
+      );
+    } else {
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListView(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              children: tasks.map(
+                (task) {
+                  return taskScreenBody(task);
+                },
+              ).toList(),
             ),
-          ])));
-}
+            const SizedBox(
+              height: 20,
+            ),
+            completeTasks.isNotEmpty
+                ? Container(
+                    margin: const EdgeInsets.only(left: 20),
+                    child: const Text(
+                      'Completed',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.lightBlue,
+                      ),
+                    ),
+                  )
+                : Container(),
+            const SizedBox(
+              height: 20,
+            ),
+            ListView(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              children: completeTasks.map(
+                (task) {
+                  return taskScreenBody(task);
+                },
+              ).toList(),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
-Widget taskScreenBody(String title) {
-  bool value = false;
-  return Container(
+  Widget get allCompleteTasks {
+    return ListView(
+        children: completeTasks.map((task) {
+      return taskScreenBody(task);
+    }).toList());
+  }
+
+  Widget taskScreenBody(Task task) {
+    return Container(
       margin: const EdgeInsets.only(left: 15, right: 15, bottom: 5),
       child: ElevatedButton(
-          onPressed: () {},
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.all(0),
-            primary: Colors.white,
-            onPrimary: Colors.blueAccent,
-            shadowColor: Colors.grey[50],
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
+        onPressed: () {
+          showBottomModal(context, _titleController, createTask,
+              (value) => {category_id = value});
+        },
+        onLongPress: () {
+          openDialogDeleteTask(task.id);
+        },
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.all(5),
+          primary: Colors.grey[200],
+          onPrimary: Colors.blueAccent,
+          shadowColor: Colors.grey[50],
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
           ),
-          child: Column(children: [
+        ),
+        child: Column(
+          children: [
             Row(
               children: [
                 Checkbox(
-                  value: value,
+                  value: task.checked,
                   shape: const CircleBorder(),
-                  splashRadius: 10,
+                  splashRadius: 20,
                   activeColor: Colors.transparent,
                   checkColor: Colors.red,
                   onChanged: (value) {
-                    void setState;
-                    (() {
-                      value = value;
+                    setState(() {
+                      task.checked = !task.checked;
+                      Task myTask = Task(
+                        title: task.title,
+                        id: task.id,
+                        category_id: task.category_id,
+                        checked: task.checked,
+                      );
+                      TaskProvider.instance.update(myTask);
+                      getMyCompleteTasks();
+                      getTasks();
+                      getTasksByCategory(category_id);
+                      getCompleteTasksByCategory(category_id);
                     });
                   },
                 ),
                 Expanded(
-                    child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  softWrap: false,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[700],
-                  ),
-                )),
-              ],
-            ),
-          ])));
-}
-
-_showBottomModal(context) {
-  showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (builder) {
-        return Container(
-          height: 200,
-          color: Colors.transparent,
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(10.0),
-                topRight: Radius.circular(10.0),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 10.0,
-                  spreadRadius: 0.0,
-                )
-              ],
-            ),
-            alignment: Alignment.topLeft,
-            child: Column(
-              children: <Widget>[
-                const SizedBox(height: 8),
-                Container(
-                  alignment: Alignment.topLeft,
-                  margin: const EdgeInsets.only(left: 20, top: 10, bottom: 10),
-                  child: const Text(
-                    "Create Tasks",
+                  child: Text(
+                    task.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: false,
                     style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.lightBlue),
+                      decoration: task.checked == true
+                          ? TextDecoration.lineThrough
+                          : TextDecoration.none,
+                      fontSize: 16,
+                      color: Colors.grey[700],
+                    ),
                   ),
-                ),
-                const SizedBox(
-                  height: 8,
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                        child: Container(
-                      margin: const EdgeInsets.only(left: 15, bottom: 10),
-                      child: TextField(
-                        keyboardType: TextInputType.text,
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.fromLTRB(
-                              20.0, 10.0, 100.0, 10.0),
-                          filled: true,
-                          border: const OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(15)),
-                              borderSide:
-                                  BorderSide(color: Colors.white, width: 0)),
-                          fillColor: Colors.grey[200],
-                          hintText: 'Input new task here',
-                          enabledBorder: const OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(15)),
-                              borderSide:
-                                  BorderSide(color: Colors.white, width: 0)),
-                        ),
-                      ),
-                    )),
-                    Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            shape: const CircleBorder(),
-                          ),
-                          child: const Icon(
-                            Icons.send,
-                            size: 20,
-                            color: Colors.white,
-                          ),
-                        )),
-                  ],
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                        margin: const EdgeInsets.only(right: 5),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              onPrimary: Colors.blueAccent,
-                              primary: Colors.lightBlue[50]),
-                          child: const Text(
-                            "Select Category",
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.lightBlue,
-                            ),
-                          ),
-                        )),
-                    Container(
-                        margin: const EdgeInsets.only(right: 5),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              onPrimary: Colors.blueAccent,
-                              primary: Colors.lightBlue[50]),
-                          child: const Icon(
-                            Icons.notifications_active,
-                            size: 20,
-                            color: Colors.lightBlue,
-                          ),
-                        )),
-                    Container(
-                        margin: const EdgeInsets.only(right: 5),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              onPrimary: Colors.blueAccent,
-                              primary: Colors.lightBlue[50]),
-                          child: const Icon(
-                            Icons.date_range,
-                            size: 20,
-                            color: Colors.lightBlue,
-                          ),
-                        )),
-                  ],
                 ),
               ],
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> createTask() async {
+    Task task = Task(
+      title: _titleController.text,
+      category_id: category_id,
+      checked: false,
+    );
+    TaskProvider.instance.insert(task);
+    Navigator.pop(context, task);
+    _titleController.text = '';
+    getTasks();
+    getMyCompleteTasks();
+  }
+
+  Future openDialogDeleteCategory(id) => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Confirmation',
+              style: TextStyle(
+                color: Colors.red,
+              )),
+          content: const Text(
+            'Are you sure want to delete?',
           ),
-        );
+          actions: [
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Text('Cancel')),
+            ElevatedButton(
+                onPressed: () {
+                  deleteCategory(id);
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  primary: Colors.white,
+                  elevation: 0,
+                ),
+                child: const Text('Delete',
+                    style: TextStyle(
+                      color: Colors.red,
+                    ))),
+          ],
+        ),
+      );
+
+  Future openDialogDeleteTask(id) => showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+            title: const Text('Confirmation',
+                style: TextStyle(
+                  color: Colors.red,
+                )),
+            content: const Text(
+              'Are you sure want to delete?',
+            ),
+            actions: [
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text('Cancel')),
+              ElevatedButton(
+                  onPressed: () {
+                    deleteTask(id);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    primary: Colors.white,
+                    elevation: 0,
+                  ),
+                  child: const Text('Delete',
+                      style: TextStyle(
+                        color: Colors.red,
+                      ))),
+            ],
+          ));
+
+  Future<void> deleteCategory(id) async {
+    bool success = false;
+    String? message;
+    try {
+      CategoryProvider.instance.delete(id);
+      message = 'Deleted successfully';
+      success = true;
+    } catch (_) {
+      message = 'Error deleted';
+      success = false;
+    } finally {
+      final snackBar = SnackBar(
+        content: Text(
+          message!,
+          style: const TextStyle(fontSize: 14),
+        ),
+        backgroundColor: success ? Colors.lightBlue : Colors.redAccent,
+      );
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      getCategories();
+    }
+  }
+
+  Future<void> deleteTask(id) async {
+    bool success = false;
+    String? message;
+    try {
+      TaskProvider.instance.delete(id);
+      message = 'Deleted successfully';
+      success = true;
+    } catch (_) {
+      message = 'Error deleted';
+      success = false;
+    } finally {
+      final snackBar = SnackBar(
+        content: Text(
+          message!,
+          style: const TextStyle(fontSize: 14),
+        ),
+        backgroundColor: success ? Colors.lightBlue : Colors.redAccent,
+      );
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      getTasks();
+      getMyCompleteTasks();
+    }
+  }
+
+  Future<void> createCategory() async {
+    bool success = false;
+    String? message;
+    Category category = Category(
+      name: _categoryNameController.text,
+    );
+    try {
+      for (var i = 0; i < categories.length; i++) {
+        if (categories[i].name.toLowerCase() ==
+            _categoryNameController.text.toLowerCase()) {
+          success = false;
+          message = "You cannot create category with the same name!";
+          throw Exception();
+        }
+      }
+
+      if (_categoryNameController.text != '') {
+        CategoryProvider.instance.insert(category);
+        success = true;
+        message = "Created Successfully!";
+      } else {
+        success = false;
+        message = "Name is required!";
+      }
+    } catch (e) {
+      success = false;
+    } finally {
+      final snackBar = SnackBar(
+        dismissDirection: DismissDirection.up,
+        content: Text(
+          message!,
+          style: const TextStyle(fontSize: 14),
+        ),
+        backgroundColor: success ? Colors.lightBlue : Colors.redAccent,
+      );
+      Navigator.pop(context, category);
+      _categoryNameController.text = '';
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      getCategories();
+    }
+  }
+
+  Future<void> taskSearch(value) async {
+    if (value == '') {
+      // getTasks();
+      getTasksByCategory(category_id);
+      getCompleteTasksByCategory(category_id);
+    } else {
+      List<Task> _tasks =
+          await TaskProvider.instance.searchTask(_searchController.text);
+      setState(() {
+        tasks = _tasks;
       });
+    }
+  }
 }
