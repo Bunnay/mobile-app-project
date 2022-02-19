@@ -6,6 +6,7 @@ import 'package:my_app/provider/category_provider.dart';
 import 'package:my_app/provider/task_provider.dart';
 import 'package:my_app/screen/tasks/create_category.dart';
 import 'package:my_app/screen/tasks/create_task.dart';
+import 'package:my_app/screen/tasks/edit_task.dart';
 
 class TaskScreen extends StatefulWidget {
   const TaskScreen({Key? key}) : super(key: key);
@@ -19,6 +20,7 @@ class _TaskState extends State<TaskScreen> {
   List<Category> categories = [];
   // ignore: non_constant_identifier_names
   var category_id;
+  var task_id;
   var category_states = [];
   var changeActive = true;
   final _searchController = TextEditingController();
@@ -140,7 +142,7 @@ class _TaskState extends State<TaskScreen> {
               ]),
               floatingActionButton: FloatingActionButton(
                 onPressed: () {
-                  showBottomModal(context, _titleController, createTask,
+                  showCreateBottomModal(context, _titleController, createTask,
                       (value) => {category_id = value});
                 },
                 tooltip: 'Create Task',
@@ -190,6 +192,7 @@ class _TaskState extends State<TaskScreen> {
     });
   }
 
+// ignore: non_constant_identifier_names
   Future<void> getCompleteTasksByCategory(category_id) async {
     List<Task> _completeTasks =
         await TaskProvider.instance.getCompleteTasksByCategoryId(category_id);
@@ -315,8 +318,11 @@ class _TaskState extends State<TaskScreen> {
       margin: const EdgeInsets.only(left: 15, right: 15, bottom: 5),
       child: ElevatedButton(
         onPressed: () {
-          showBottomModal(context, _titleController, createTask,
-              (value) => {category_id = value});
+          _titleController.text = task.title;
+          category_id = task.category_id;
+          task_id = task.id;
+          showEditBottomModal(context, _titleController, editTask,
+              (value) => {category_id = value}, task);
         },
         onLongPress: () {
           openDialogDeleteTask(task.id);
@@ -390,6 +396,31 @@ class _TaskState extends State<TaskScreen> {
     TaskProvider.instance.insert(task);
     Navigator.pop(context, task);
     _titleController.text = '';
+    category_id = null;
+    for (var i = 0; i < category_states.length; i++) {
+      category_states[i] = false;
+    }
+    changeActive = true;
+    getTasks();
+    getMyCompleteTasks();
+  }
+
+  Future<void> editTask() async {
+    Task task = Task(
+      title: _titleController.text,
+      category_id: category_id,
+      checked: false,
+      id: task_id,
+    );
+    TaskProvider.instance.update(task);
+    Navigator.pop(context, task);
+    _titleController.text = '';
+    category_id = null;
+    task_id = null;
+    for (var i = 0; i < category_states.length; i++) {
+      category_states[i] = false;
+    }
+    changeActive = true;
     getTasks();
     getMyCompleteTasks();
   }
@@ -570,15 +601,22 @@ class _TaskState extends State<TaskScreen> {
 
   Future<void> taskSearch(value) async {
     if (value == '') {
-      // getTasks();
+      getTasks();
+      getMyCompleteTasks();
       getTasksByCategory(category_id);
       getCompleteTasksByCategory(category_id);
     } else {
       List<Task> _tasks =
           await TaskProvider.instance.searchTask(_searchController.text);
-      setState(() {
-        tasks = _tasks;
-      });
+      setState(
+        () {
+          tasks = _tasks;
+          for (var i = 0; i < category_states.length; i++) {
+            category_states[i] = false;
+          }
+          changeActive = true;
+        },
+      );
     }
   }
 }

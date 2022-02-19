@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/screen/tasks/dropdown.dart';
 
-showCreateBottomModal(context, _titleController, createTask, onChange) {
+showEditBottomModal(
+  BuildContext context,
+  _titleController,
+  editTask,
+  onChange,
+  task,
+) {
+
   showModalBottomSheet(
     isScrollControlled: true,
     context: context,
@@ -36,7 +43,7 @@ showCreateBottomModal(context, _titleController, createTask, onChange) {
                   alignment: Alignment.topLeft,
                   margin: const EdgeInsets.only(left: 20, top: 10, bottom: 10),
                   child: const Text(
-                    "Create Tasks",
+                    "Edit Tasks",
                     style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -81,7 +88,7 @@ showCreateBottomModal(context, _titleController, createTask, onChange) {
                     Container(
                         margin: const EdgeInsets.only(bottom: 12),
                         child: ElevatedButton(
-                          onPressed: createTask,
+                          onPressed: editTask,
                           style: ElevatedButton.styleFrom(
                             shape: const CircleBorder(),
                           ),
