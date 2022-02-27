@@ -201,7 +201,7 @@ class _TaskState extends State<TaskScreen> {
         await TaskProvider.instance.getTasksByCategoryId(_category_id);
     setState(() {
       tasks = _tasks;
-      category_id = _category_id;
+      // category_id = _category_id;
     });
   }
 
@@ -211,7 +211,7 @@ class _TaskState extends State<TaskScreen> {
         await TaskProvider.instance.getCompleteTasksByCategoryId(_category_id);
     setState(() {
       completeTasks = _completeTasks;
-      category_id = _category_id;
+      // category_id = _category_id;
     });
   }
 
@@ -437,8 +437,6 @@ class _TaskState extends State<TaskScreen> {
     TaskProvider.instance.update(task);
     Navigator.pop(context, task);
     _titleController.text = '';
-    getTasksByCategory(category_id);
-    getCompleteTasksByCategory(category_id);
     category_id = null;
     task_id = null;
     for (var i = 0; i < category_states.length; i++) {

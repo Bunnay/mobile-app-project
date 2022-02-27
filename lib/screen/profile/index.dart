@@ -25,6 +25,17 @@ class _ProfileState extends State<ProfileScreen> {
       body: ListView(
         children: [
           headerScreen,
+          const Padding(
+            padding: EdgeInsets.only(left: 20, top: 20, bottom: 10),
+            child: Text(
+              'My Social Media',
+              style: TextStyle(
+                color: Colors.lightBlue,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ),
           socialMedia,
           userInformation,
         ],
@@ -34,82 +45,92 @@ class _ProfileState extends State<ProfileScreen> {
 }
 
 Widget get socialMedia {
-  return Row(
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: [
-      Expanded(
-        child: Card(
-          elevation: 5,
-          child: Container(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              children: const [
-                CircleAvatar(
-                  child: Icon(Icons.facebook, color: Colors.blue, size: 36.0),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  'Facebook',
-                  style: TextStyle(
-                    fontSize: 16,
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Card(
+            elevation: 5,
+            shadowColor: Colors.grey[50],
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: const [
+                  CircleAvatar(
+                    backgroundImage: AssetImage('lib/images/facebook.png'),
+                    backgroundColor: Colors.white,
+                    // child: Icon(Icons.facebook, color: Colors.blue, size: 36.0),
                   ),
-                ),
-              ],
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    'Facebook',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      Expanded(
-        child: Card(
-          elevation: 5,
-          child: Container(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              children: const [
-                CircleAvatar(
-                  child: Icon(Icons.facebook, color: Colors.blue, size: 36.0),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  'Facebook',
-                  style: TextStyle(
-                    fontSize: 16,
+        Expanded(
+          child: Card(
+            elevation: 5,
+            shadowColor: Colors.grey[50],
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: const [
+                  CircleAvatar(
+                    backgroundImage: AssetImage('lib/images/youtube.png'),
+                    // child: Icon(Icons.link, color: Colors.blue, size: 36.0),
                   ),
-                ),
-              ],
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    'Youtube',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      Expanded(
-        child: Card(
-          elevation: 5,
-          child: Container(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              children: const [
-                CircleAvatar(
-                  child: Icon(Icons.facebook, color: Colors.blue, size: 36.0),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  'Facebook',
-                  style: TextStyle(
-                    fontSize: 16,
+        Expanded(
+          child: Card(
+            elevation: 5,
+            shadowColor: Colors.grey[50],
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: const [
+                  CircleAvatar(
+                    backgroundImage: AssetImage('lib/images/telegram.png'),
+                    // child: Icon(Icons.facebook, color: Colors.blue, size: 36.0),
                   ),
-                ),
-              ],
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    'Telegram',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    ],
+      ],
+    ),
   );
 }
 
