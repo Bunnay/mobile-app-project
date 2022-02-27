@@ -12,7 +12,7 @@ Future openDialog(context, _categoryNameController, createCategory) =>
           controller: _categoryNameController,
           keyboardType: TextInputType.text,
           decoration: InputDecoration(
-            contentPadding: const EdgeInsets.fromLTRB(20.0, 10.0, 100.0, 10.0),
+            contentPadding: const EdgeInsets.fromLTRB(20.0, 10.0, 10.0, 10.0),
             filled: true,
             border: const OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(15)),

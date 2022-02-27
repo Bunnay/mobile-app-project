@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/colors/index.dart';
 import 'package:my_app/components/search.dart';
 import 'package:my_app/models/note.dart';
 import 'package:my_app/provider/note_provider.dart';
@@ -15,8 +16,8 @@ class _NoteState extends State<NoteScreen> {
   final _searchController = TextEditingController();
   List<Note> notes = [];
   final Future<String> _delay = Future<String>.delayed(
-    const Duration(seconds: 1),
-    () => 'loading...',
+    const Duration(milliseconds: 400),
+    () => 'It may take a while!',
   );
 
   @override
@@ -68,7 +69,17 @@ class _NoteState extends State<NoteScreen> {
         } else if (snapshot.hasError) {
           return Text("${snapshot.error}");
         }
-        return const CircularProgressIndicator();
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: const [
+            CircularProgressIndicator(),
+            SizedBox(height: 20),
+            Text(
+              'It may take a while!',
+            ),
+          ],
+        );
       },
     );
   }
@@ -80,16 +91,17 @@ class _NoteState extends State<NoteScreen> {
       );
     } else {
       return GridView.count(
-          primary: false,
-          padding: const EdgeInsets.all(10),
-          crossAxisSpacing: 3,
-          mainAxisSpacing: 3,
-          crossAxisCount: 2,
-          children: notes.map(
-            (note) {
-              return noteScreenBody(note);
-            },
-          ).toList());
+        primary: false,
+        padding: const EdgeInsets.all(10),
+        crossAxisSpacing: 3,
+        mainAxisSpacing: 3,
+        crossAxisCount: 2,
+        children: notes.map(
+          (note) {
+            return noteScreenBody(note);
+          },
+        ).toList(),
+      );
     }
   }
 
@@ -99,10 +111,10 @@ class _NoteState extends State<NoteScreen> {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.all(10),
-          primary: Colors.white,
+          primary: Colors.blue[100],
           onPrimary: Colors.blueAccent,
           shadowColor: Colors.grey[50],
-          elevation: 5,
+          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
@@ -125,7 +137,7 @@ class _NoteState extends State<NoteScreen> {
                               overflow: TextOverflow.ellipsis,
                               softWrap: false,
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.grey[700],
                               ),
@@ -136,7 +148,7 @@ class _NoteState extends State<NoteScreen> {
                     ],
                   ),
                 ),
-                const Divider(height: 20, thickness: 1),
+                const SizedBox(height: 10),
                 Container(
                   margin: const EdgeInsets.only(top: 5, left: 0),
                   child: Column(
@@ -150,7 +162,7 @@ class _NoteState extends State<NoteScreen> {
                               overflow: TextOverflow.ellipsis,
                               softWrap: false,
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: Colors.grey[700],
                               ),
                             ),

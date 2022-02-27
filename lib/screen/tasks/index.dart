@@ -18,17 +18,19 @@ class _TaskState extends State<TaskScreen> {
   List<Task> tasks = [];
   List<Task> completeTasks = [];
   List<Category> categories = [];
-  // ignore: non_constant_identifier_names
+  // ignore: non_constant_identifier_names, prefer_typing_uninitialized_variables
   var category_id;
+  // ignore: non_constant_identifier_names, prefer_typing_uninitialized_variables
   var task_id;
+  // ignore: non_constant_identifier_names
   var category_states = [];
   var changeActive = true;
   final _searchController = TextEditingController();
   final _titleController = TextEditingController();
   final _categoryNameController = TextEditingController();
   final Future<String> _delay = Future<String>.delayed(
-    const Duration(seconds: 1),
-    () => 'loading...',
+    const Duration(milliseconds: 400),
+    () => 'It may take a while!',
   );
 
   @override
@@ -37,8 +39,6 @@ class _TaskState extends State<TaskScreen> {
     getTasks();
     getCategories();
     getMyCompleteTasks();
-    getTasksByCategory(category_id);
-    getCompleteTasksByCategory(category_id);
   }
 
   @override
@@ -98,6 +98,7 @@ class _TaskState extends State<TaskScreen> {
                             changeActive = true;
                           });
                           getTasks();
+                          getMyCompleteTasks();
                         },
                       ),
                     ),
@@ -142,6 +143,7 @@ class _TaskState extends State<TaskScreen> {
               ]),
               floatingActionButton: FloatingActionButton(
                 onPressed: () {
+                  _titleController.text = "";
                   showCreateBottomModal(context, _titleController, createTask,
                       (value) => {category_id = value});
                 },
@@ -156,7 +158,17 @@ class _TaskState extends State<TaskScreen> {
           } else if (snapshot.hasError) {
             return Text("${snapshot.error}");
           }
-          return const CircularProgressIndicator();
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: const [
+              CircularProgressIndicator(),
+              SizedBox(height: 20),
+              Text(
+                'It may take a while!',
+              ),
+            ],
+          );
         });
   }
 
@@ -184,20 +196,22 @@ class _TaskState extends State<TaskScreen> {
   }
 
   // ignore: non_constant_identifier_names
-  Future<void> getTasksByCategory(category_id) async {
+  Future<void> getTasksByCategory(_category_id) async {
     List<Task> _tasks =
-        await TaskProvider.instance.getTasksByCategoryId(category_id);
+        await TaskProvider.instance.getTasksByCategoryId(_category_id);
     setState(() {
       tasks = _tasks;
+      category_id = _category_id;
     });
   }
 
 // ignore: non_constant_identifier_names
-  Future<void> getCompleteTasksByCategory(category_id) async {
+  Future<void> getCompleteTasksByCategory(_category_id) async {
     List<Task> _completeTasks =
-        await TaskProvider.instance.getCompleteTasksByCategoryId(category_id);
+        await TaskProvider.instance.getCompleteTasksByCategoryId(_category_id);
     setState(() {
       completeTasks = _completeTasks;
+      category_id = _category_id;
     });
   }
 
@@ -243,7 +257,13 @@ class _TaskState extends State<TaskScreen> {
         onLongPress: () {
           openDialogDeleteCategory(category.id);
         },
-        child: Text(category.name,
+        child: Text(
+            category.name
+                .toLowerCase()
+                .split(" ")
+                .map((word) =>
+                    word[0].toUpperCase() + word.substring(1, word.length))
+                .join(" "),
             style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -321,21 +341,21 @@ class _TaskState extends State<TaskScreen> {
           _titleController.text = task.title;
           category_id = task.category_id;
           task_id = task.id;
-          showEditBottomModal(context, _titleController, editTask,
-              (value) => {category_id = value}, task);
+          showEditBottomModal(context, _titleController, editTask);
         },
         onLongPress: () {
           openDialogDeleteTask(task.id);
         },
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.all(5),
-          primary: Colors.grey[200],
+          primary: Colors.grey[100],
           onPrimary: Colors.blueAccent,
           shadowColor: Colors.grey[50],
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
+          side: BorderSide(color: Colors.grey.shade50),
         ),
         child: Column(
           children: [
@@ -357,10 +377,12 @@ class _TaskState extends State<TaskScreen> {
                         checked: task.checked,
                       );
                       TaskProvider.instance.update(myTask);
+                      for (var i = 0; i < category_states.length; i++) {
+                        category_states[i] = false;
+                      }
+                      changeActive = true;
                       getMyCompleteTasks();
                       getTasks();
-                      getTasksByCategory(category_id);
-                      getCompleteTasksByCategory(category_id);
                     });
                   },
                 ),
@@ -415,6 +437,8 @@ class _TaskState extends State<TaskScreen> {
     TaskProvider.instance.update(task);
     Navigator.pop(context, task);
     _titleController.text = '';
+    getTasksByCategory(category_id);
+    getCompleteTasksByCategory(category_id);
     category_id = null;
     task_id = null;
     for (var i = 0; i < category_states.length; i++) {
@@ -603,14 +627,15 @@ class _TaskState extends State<TaskScreen> {
     if (value == '') {
       getTasks();
       getMyCompleteTasks();
-      getTasksByCategory(category_id);
-      getCompleteTasksByCategory(category_id);
     } else {
       List<Task> _tasks =
           await TaskProvider.instance.searchTask(_searchController.text);
+      List<Task> _completeTasks = await TaskProvider.instance
+          .searchCompleteTask(_searchController.text);
       setState(
         () {
           tasks = _tasks;
+          completeTasks = _completeTasks;
           for (var i = 0; i < category_states.length; i++) {
             category_states[i] = false;
           }

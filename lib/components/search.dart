@@ -13,7 +13,7 @@ Widget search(_searchController, onChangedSearch) {
             decoration: InputDecoration(
               filled: true,
               contentPadding:
-                  const EdgeInsets.fromLTRB(20.0, 10.0, 100.0, 10.0),
+                  const EdgeInsets.fromLTRB(20.0, 10.0, 10.0, 10.0),
               border: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(15)),
                   borderSide: BorderSide(color: Colors.white, width: 0)),

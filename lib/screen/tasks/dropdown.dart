@@ -45,7 +45,14 @@ class _MyDropDownState extends State<DropDown> {
       items: categories.map((category) {
         return DropdownMenuItem<Category>(
           value: category,
-          child: Text(category.name),
+          child: Text(
+            category.name
+                .toLowerCase()
+                .split(" ")
+                .map((word) =>
+                    word[0].toUpperCase() + word.substring(1, word.length))
+                .join(" "),
+          ),
         );
       }).toList(),
     );

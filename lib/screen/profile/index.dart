@@ -25,43 +25,130 @@ class _ProfileState extends State<ProfileScreen> {
       body: ListView(
         children: [
           headerScreen,
-          const SizedBox(
-          height: 10,
-        ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-            ElevatedButton(
-                onPressed: () {
-                },
-                style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    onPrimary: Colors.blueAccent,
-                    primary: Colors.lightBlue[50]),
-                child: Row(children: const[
-                 Icon(
-                    Icons.edit,
-                    size: 20,
-                    color: Colors.lightBlue,
-                  ),
-                  Text(
-                    'Edit Profile',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.lightBlue,
-                    ),
-                  )
-                ],
-                ),
-          ),
-          ],),
+          socialMedia,
+          userInformation,
         ],
       ),
     );
   }
+}
+
+Widget get socialMedia {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      Expanded(
+        child: Card(
+          elevation: 5,
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              children: const [
+                CircleAvatar(
+                  child: Icon(Icons.facebook, color: Colors.blue, size: 36.0),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  'Facebook',
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      Expanded(
+        child: Card(
+          elevation: 5,
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              children: const [
+                CircleAvatar(
+                  child: Icon(Icons.facebook, color: Colors.blue, size: 36.0),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  'Facebook',
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      Expanded(
+        child: Card(
+          elevation: 5,
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              children: const [
+                CircleAvatar(
+                  child: Icon(Icons.facebook, color: Colors.blue, size: 36.0),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  'Facebook',
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+Widget get userInformation {
+  return Column(
+    mainAxisAlignment: MainAxisAlignment.start,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Padding(
+        padding: EdgeInsets.only(left: 20, top: 20, bottom: 10),
+        child: Text(
+          'User Information',
+          style: TextStyle(
+            color: Colors.lightBlue,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ),
+      userInfo('Full Name', Icons.person, 'Bunnay Mao'),
+      userInfo('Email', Icons.email, "iloveyou@gmail.com"),
+      userInfo('Phone Number', Icons.phone, '+855 12 12 421'),
+      userInfo('Address', Icons.location_city, 'Phnom Penh'),
+    ],
+  );
+}
+
+Widget userInfo(String title, IconData icon, String info) {
+  return Card(
+    margin: const EdgeInsets.only(left: 10, right: 10, top: 10),
+    elevation: 2,
+    child: ListTile(
+      onTap: () {},
+      leading: ClipOval(
+        child: Icon(icon, color: Colors.blue, size: 36.0),
+      ),
+      title: Text(info),
+    ),
+  );
 }
 
 Widget get headerScreen {
@@ -107,8 +194,41 @@ Widget get headerScreen {
             ),
           ],
         ),
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  onPrimary: Colors.blueAccent,
+                  primary: Colors.lightBlue[50]),
+              child: Row(
+                children: const [
+                  Icon(
+                    Icons.edit,
+                    size: 20,
+                    color: Colors.lightBlue,
+                  ),
+                  Text(
+                    'Edit Profile',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.lightBlue,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
       ],
     ),
   );
 }
-

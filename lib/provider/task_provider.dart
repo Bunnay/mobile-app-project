@@ -46,7 +46,13 @@ class TaskProvider extends DB {
 
   Future searchTask(String title) async {
     List<Map<String, Object?>> result = await (await db).query(TaskTable.name,
-        where: "${TaskTable.title} like ?", whereArgs: ['%$title%']);
+        where: "${TaskTable.title} like ? AND ${TaskTable.checked} = ?", whereArgs: ['%$title%',0]);
+    return result.map((json) => Task.fromMap(json)).toList();
+  }
+
+  Future searchCompleteTask(String title) async {
+    List<Map<String, Object?>> result = await (await db).query(TaskTable.name,
+        where: "${TaskTable.title} like ? AND ${TaskTable.checked} = ?", whereArgs: ['%$title%', 1]);
     return result.map((json) => Task.fromMap(json)).toList();
   }
 

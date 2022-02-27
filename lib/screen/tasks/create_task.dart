@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/screen/tasks/dropdown.dart';
+import 'dart:ui';
 
 showCreateBottomModal(context, _titleController, createTask, onChange) {
   showModalBottomSheet(
@@ -56,7 +57,7 @@ showCreateBottomModal(context, _titleController, createTask, onChange) {
                         keyboardType: TextInputType.text,
                         decoration: InputDecoration(
                           contentPadding: const EdgeInsets.fromLTRB(
-                              20.0, 10.0, 100.0, 10.0),
+                              20.0, 10.0, 10.0, 10.0),
                           filled: true,
                           border: const OutlineInputBorder(
                               borderRadius:

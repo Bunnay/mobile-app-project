@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/screen/home.dart';
 import 'package:my_app/screen/notes/index.dart';
+import 'package:my_app/screen/photos.dart';
 import 'package:my_app/screen/profile/index.dart';
 import 'package:my_app/screen/tasks/index.dart';
 
@@ -31,7 +32,7 @@ class Main extends StatefulWidget {
 
 class _MainState extends State<Main> {
   bool value = false;
-  int _selectedIndex = 2;
+  int _selectedIndex = 3;
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -39,7 +40,8 @@ class _MainState extends State<Main> {
   }
 
   final List<Widget> _page = <Widget>[
-    const HomeScreen(),
+    // const HomeScreen(),
+    const PhotoScreen(),
     const NoteScreen(),
     const TaskScreen(),
     const ProfileScreen(),
@@ -56,8 +58,8 @@ class _MainState extends State<Main> {
         showUnselectedLabels: false,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home, size: 25),
-            label: 'Home',
+            icon: Icon(Icons.image, size: 25),
+            label: 'Photo',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.border_color_rounded, size: 25),

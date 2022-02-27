@@ -5,8 +5,8 @@ showEditBottomModal(
   BuildContext context,
   _titleController,
   editTask,
-  onChange,
-  task,
+  // onChange,
+  // task,
 ) {
 
   showModalBottomSheet(
@@ -63,7 +63,7 @@ showEditBottomModal(
                         keyboardType: TextInputType.text,
                         decoration: InputDecoration(
                           contentPadding: const EdgeInsets.fromLTRB(
-                              20.0, 10.0, 100.0, 10.0),
+                              20.0, 10.0, 10.0, 10.0),
                           filled: true,
                           border: const OutlineInputBorder(
                               borderRadius:
@@ -100,17 +100,17 @@ showEditBottomModal(
                         )),
                   ],
                 ),
-                const SizedBox(
-                  height: 15,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    DropDown(onChange: (value) {
-                      onChange(value);
-                    }),
-                  ],
-                ),
+                // const SizedBox(
+                //   height: 15,
+                // ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     DropDown(onChange: (value) {
+                //       onChange(value);
+                //     }),
+                //   ],
+                // ),
               ],
             ),
           ),

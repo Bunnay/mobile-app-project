@@ -37,29 +37,32 @@ class _CreateNoteState extends State<CreateNote> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          actions: [
-            Padding(
-                padding: const EdgeInsets.only(right: 8), child: updateButton),
-            Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: (myType == 'edit') ? deleteButton : null),
-          ],
-          title: const Text('Notes',
-              style: TextStyle(
-                color: Colors.lightBlue,
-                fontWeight: FontWeight.bold,
-                fontSize: 25,
-              )),
-          iconTheme: const IconThemeData(
-              size: 10, color: Colors.lightBlue, opacity: 1),
-          elevation: 0,
-          backgroundColor: Colors.white,
-        ),
-        body: ListView(children: [
-          textField(_titleController, 'Enter title...', 1),
-          textField(_textController, 'Enter text...', 15),
-        ]));
+      appBar: AppBar(
+        actions: [
+          Padding(
+              padding: const EdgeInsets.only(right: 8), child: updateButton),
+          Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: (myType == 'edit') ? deleteButton : null),
+        ],
+        title: const Text('Notes',
+            style: TextStyle(
+              color: Colors.lightBlue,
+              fontWeight: FontWeight.bold,
+              fontSize: 25,
+            )),
+        iconTheme:
+            const IconThemeData(size: 10, color: Colors.lightBlue, opacity: 1),
+        elevation: 0,
+        backgroundColor: Colors.white,
+      ),
+      body: ListView(
+        children: [
+          textField(_titleController, 'Enter title', 1, 'title'),
+          textField(_textController, 'Enter text', 15, 'text'),
+        ],
+      ),
+    );
   }
 
   Future<void> editAndCreateNote() async {
