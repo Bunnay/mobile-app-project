@@ -32,7 +32,7 @@ class Main extends StatefulWidget {
 
 class _MainState extends State<Main> {
   bool value = false;
-  int _selectedIndex = 3;
+  int _selectedIndex = 1;
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;

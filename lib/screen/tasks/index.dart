@@ -60,7 +60,7 @@ class _TaskState extends State<TaskScreen> {
               ),
               body: Column(children: [
                 Container(
-                  child: search(_searchController, taskSearch),
+                  child: search(_searchController, taskSearch, 'tasks'),
                   margin: const EdgeInsets.only(bottom: 5),
                 ),
                 Row(
@@ -172,48 +172,6 @@ class _TaskState extends State<TaskScreen> {
         });
   }
 
-  Future<void> getTasks() async {
-    List<Task> _tasks = await TaskProvider.instance.getAllTasks();
-    setState(() {
-      tasks = _tasks;
-    });
-  }
-
-  Future<void> getMyCompleteTasks() async {
-    List<Task> _completeTasks = await TaskProvider.instance.getCompleteTasks();
-    setState(() {
-      completeTasks = _completeTasks;
-    });
-  }
-
-  Future<void> getCategories() async {
-    List<Category> _categories =
-        await CategoryProvider.instance.getAllCategories();
-    setState(() {
-      categories = _categories;
-      category_states = List.generate(_categories.length, (index) => false);
-    });
-  }
-
-  // ignore: non_constant_identifier_names
-  Future<void> getTasksByCategory(_category_id) async {
-    List<Task> _tasks =
-        await TaskProvider.instance.getTasksByCategoryId(_category_id);
-    setState(() {
-      tasks = _tasks;
-      // category_id = _category_id;
-    });
-  }
-
-// ignore: non_constant_identifier_names
-  Future<void> getCompleteTasksByCategory(_category_id) async {
-    List<Task> _completeTasks =
-        await TaskProvider.instance.getCompleteTasksByCategoryId(_category_id);
-    setState(() {
-      completeTasks = _completeTasks;
-      // category_id = _category_id;
-    });
-  }
 
   Widget get allCategories {
     return Container(
@@ -619,6 +577,49 @@ class _TaskState extends State<TaskScreen> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       getCategories();
     }
+  }
+
+    Future<void> getTasks() async {
+    List<Task> _tasks = await TaskProvider.instance.getAllTasks();
+    setState(() {
+      tasks = _tasks;
+    });
+  }
+
+  Future<void> getMyCompleteTasks() async {
+    List<Task> _completeTasks = await TaskProvider.instance.getCompleteTasks();
+    setState(() {
+      completeTasks = _completeTasks;
+    });
+  }
+
+  Future<void> getCategories() async {
+    List<Category> _categories =
+        await CategoryProvider.instance.getAllCategories();
+    setState(() {
+      categories = _categories;
+      category_states = List.generate(_categories.length, (index) => false);
+    });
+  }
+
+  // ignore: non_constant_identifier_names
+  Future<void> getTasksByCategory(_category_id) async {
+    List<Task> _tasks =
+        await TaskProvider.instance.getTasksByCategoryId(_category_id);
+    setState(() {
+      tasks = _tasks;
+      // category_id = _category_id;
+    });
+  }
+
+// ignore: non_constant_identifier_names
+  Future<void> getCompleteTasksByCategory(_category_id) async {
+    List<Task> _completeTasks =
+        await TaskProvider.instance.getCompleteTasksByCategoryId(_category_id);
+    setState(() {
+      completeTasks = _completeTasks;
+      // category_id = _category_id;
+    });
   }
 
   Future<void> taskSearch(value) async {

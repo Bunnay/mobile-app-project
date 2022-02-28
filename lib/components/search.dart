@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Widget search(_searchController, onChangedSearch) {
+Widget search(_searchController, onChangedSearch, hintText) {
   return SizedBox(
     child: Card(
       elevation: 0,
@@ -19,7 +19,7 @@ Widget search(_searchController, onChangedSearch) {
                   borderSide: BorderSide(color: Colors.white, width: 0)),
               prefixIcon: const Icon(Icons.search),
               fillColor: Colors.grey[200],
-              hintText: 'Search tasks',
+              hintText: 'Search $hintText',
               enabledBorder: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(15)),
                   borderSide: BorderSide(color: Colors.white, width: 0)),

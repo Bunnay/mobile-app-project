@@ -48,7 +48,7 @@ class _NoteState extends State<NoteScreen> {
             body: Column(
               children: [
                 Container(
-                  child: search(_searchController, noteSearch),
+                  child: search(_searchController, noteSearch, 'notes'),
                   margin: const EdgeInsets.only(bottom: 20),
                 ),
                 Expanded(
